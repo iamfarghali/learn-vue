@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Intro To Vue</title>
+        <link rel="stylesheet" href="main.css">
+        <link rel="author" href="humans.txt">
+		<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    </head>
+    <body>
+    	<div class="nav-bar"></div>
+    	<div id="app">
+
+			<div class="cart">
+				<p>Cart({{cart.length}})</p>
+			</div>
+
+			<product :premium="premium"
+					 @add-to-cart="updateCart">
+					 	
+		    </product>
+		</div>
+
+        <script src="main.js"></script>
+    </body>
+</html>
