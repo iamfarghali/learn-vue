@@ -51,38 +51,40 @@
           </button>
         </div>
       </form>
+      <div>
+        <circle-spin v-show="isLoading"></circle-spin>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
 const endpoint = "http://authsysapi.test/api/auth/login";
 export default {
   data() {
     return {
       email: "",
       password: "",
-      errors: null
+      errors: null,
+      isLoading: false
     };
   },
+  computed: {},
   methods: {
     login() {
-      axios
-        .post(endpoint, {
+      this.isLoading = true;
+      this.$store
+        .dispatch("loginAction", {
+          endpoint: endpoint,
           email: this.email,
           password: this.password
         })
-        .then(({ data }) => {
-          localStorage.setItem("token", data.data.access_token);
-          localStorage.setItem("user", data.data.user);
-          this.$router.push("/profile");
-        })
+        .then(() => this.$router.push("/profile"))
         .catch(err => {
           this.errors = err.response.data.message;
         })
         .finally(() => {
-          this.password = "";
+          this.isLoading = false;
         });
     }
   }
