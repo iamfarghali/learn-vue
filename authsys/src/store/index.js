@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
+import VuexPersistence from "vuex-persist";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -86,5 +87,6 @@ export default new Vuex.Store({
     get_loggedIn(state) {
       return state.loggedIn;
     }
-  }
+  },
+  plugins: [new VuexPersistence().plugin]
 });
