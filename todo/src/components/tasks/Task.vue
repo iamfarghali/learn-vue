@@ -2,12 +2,14 @@
   <div>
     <v-list-item three-line>
       <v-list-item-action class="mr-2">
-        <v-checkbox v-model="active" color="purple darken-1"></v-checkbox>
+        <v-checkbox v-model="done" color="purple darken-1"></v-checkbox>
       </v-list-item-action>
       <v-list-item-content>
-        <v-list-item-title class="purple--text darken-1">{{
-          task.title
-        }}</v-list-item-title>
+        <v-list-item-title
+          :class="{ 'text-decoration-line-through': done }"
+          class="purple--text darken-1"
+          >{{ task.name }}</v-list-item-title
+        >
 
         <v-list-item-subtitle>{{ task.description }}</v-list-item-subtitle>
 
@@ -16,7 +18,6 @@
         }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
-
   </div>
 </template>
 
@@ -25,12 +26,12 @@ export default {
   props: ["task"],
   data() {
     return {
-      active: false
+      done: this.task.done
     };
   },
   methods: {
     toggle() {
-      this.active = !this.active;
+      this.done = !this.done;
     }
   }
 };

@@ -1,19 +1,29 @@
 <template>
-  <v-row class="mt-12" justify="space-between">
-    <v-col cols="8">
+  <div>
+    <div v-if="loading" class="text-center my-12">
+      <v-progress-circular
+        indeterminate
+        color="purple darken-2"
+      ></v-progress-circular>
+    </div>
+    <div v-else>
       <v-list dense>
         <task v-for="task in tasks" :task="task" :key="task.id"></task>
       </v-list>
-    </v-col>
-    <v-col cols="4">
-      <add-task></add-task>
-    </v-col>
-  </v-row>
+      <div class="text-center my-4">
+        <v-pagination
+          v-model="pagination.current"
+          :length="pagination.total_pages"
+          color="purple darken-2"
+          @input="getTasks()"
+        ></v-pagination>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 import Task from "@/components/tasks/Task";
-import AddTask from "@/components/tasks/AddTask";
 export default {
   name: "Tasks",
   data() {
@@ -21,22 +31,32 @@ export default {
       loading: false
     };
   },
+  mounted() {
+    this.getTasks();
+  },
   computed: {
     tasks() {
       return this.$store.state.tasks;
+    },
+    pagination() {
+      return this.$store.state.pagination;
     }
   },
   components: {
-    Task,
-    AddTask
+    Task
   },
   methods: {
-    addTask() {
+    getTasks() {
       this.loading = true;
-      // dispatsh action
-      setTimeout(() => {
-        this.loading = false;
-      }, 3000);
+      this.$store
+        .dispatch("getTasksAction")
+        .then(() => {})
+        .catch(err => {
+          console.log(err);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     }
   }
 };

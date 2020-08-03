@@ -1,49 +1,61 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import tasksApi from "../gateways/tasksApi";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    tasks: [
-      {
-        id: 1,
-        title: "Task 1",
-        description: "Task Description...",
-        duration: 4,
-        start_at: "04:00",
-        end_at: "09:00",
-        day: "Sun"
-      },
-      {
-        id: 2,
-        title: "Task 2",
-        description: "Task Description...",
-        duration: 2,
-        start_at: "04:00",
-        end_at: "06:00",
-        day: "Mon"
-      },
-      {
-        id: 3,
-        title: "Task 3",
-        description: "Task Description...",
-        duration: 1,
-        start_at: "04:00",
-        end_at: "05:00",
-        day: "Sat"
-      },
-      {
-        id: 4,
-        title: "Task 4",
-        description: "Task Description...",
-        duration: 3,
-        start_at: "04:00",
-        end_at: "07:00",
-        day: "Fri"
-      }
-    ]
+    tasks: [],
+    pagination: { current: 1, total_pages: 0 },
+    jwt:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC90b2RvLnRlc3RcL2FwaVwvYXV0aFwvbG9naW4iLCJpYXQiOjE1OTU5MjUzMDMsImV4cCI6MTU5NjM1NzMwMywibmJmIjoxNTk1OTI1MzAzLCJqdGkiOiJhSk9udjRuV281ZEUzaFlZIiwic3ViIjoyMSwicHJ2IjoiODdlMGFmMWVmOWZkMTU4MTJmZGVjOTcxNTNhMTRlMGIwNDc1NDZhYSJ9.4E5epodsa4SuLcYApcYiuZnJXMQbk4p5ZQSD2Y5QxNE"
   },
-  mutations: {},
-  actions: {}
+  mutations: {
+    ADD_TASK(state, payload) {
+      state.tasks.unshift(payload);
+      state.tasks.pop();
+    },
+    GET_TASKS(state, payload) {
+      if (payload.tasks) {
+        state.tasks = payload.tasks;
+        state.pagination = payload.pagination;
+      }
+    }
+  },
+  actions: {
+    getTasksAction({ commit, state }) {
+      return new Promise((resolve, reject) => {
+        tasksApi
+          .get("", {
+            params: { page: state.pagination.current, token: state.jwt }
+          })
+          .then(({ data }) => {
+            commit("GET_TASKS", data.data);
+            resolve(data.data);
+          })
+          .catch(err => {
+            reject(err);
+          });
+      });
+    },
+    addTaskAction({ commit, state }, task) {
+      return new Promise((resolve, reject) => {
+        tasksApi
+          .post("", {
+            token: state.jwt,
+            name: task.name,
+            task_day: task.day,
+            start_at: task.start_at,
+            end_at: task.end_at,
+            description: task.description
+          })
+          .then(({ data }) => {
+            commit("ADD_TASK", data.data);
+            resolve(data);
+          })
+          .catch(err => reject(err));
+      });
+    }
+  }
 });

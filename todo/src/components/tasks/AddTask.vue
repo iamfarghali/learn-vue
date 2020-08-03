@@ -10,17 +10,15 @@
             :lazy-validation="true"
           >
             <v-text-field
-              dense=""
-              label="Title"
-              v-model="task.title"
+              label="Name"
+              v-model="task.name"
+              :rules="taskRules.name"
               required
             ></v-text-field>
 
             <v-text-field
-              dense
               label="Description"
               v-model="task.description"
-              :rules="[v => !!v || 'Description is required']"
               required
             ></v-text-field>
             <v-menu
@@ -43,18 +41,23 @@
               <v-date-picker
                 v-model="task.day"
                 @input="menu2 = false"
-                :min="today"
+                :min="task.day"
+                no-title
               ></v-date-picker>
             </v-menu>
             <v-text-field
               label="Start At"
               v-model="task.start_at"
               type="time"
+              :rules="taskRules.start_at"
+              required
             ></v-text-field>
             <v-text-field
               label="End At"
               v-model="task.end_at"
               type="time"
+              :rules="taskRules.end_at"
+              required
             ></v-text-field>
           </v-form>
         </v-row>
@@ -73,13 +76,7 @@
       </v-btn>
 
       <v-spacer></v-spacer>
-      <v-btn
-        color="red darken-3"
-        text
-        small
-        :loading="loading"
-        @click="resetForm()"
-      >
+      <v-btn color="red darken-3" text small @click="resetForm()">
         <v-icon small class="mr-1">mdi-trash-can-outline</v-icon>
         Clear
       </v-btn>
@@ -88,39 +85,48 @@
 </template>
 
 <script>
+const today = new Date().toISOString().substr(0, 10);
 export default {
   name: "AddTask",
   data() {
     return {
       valid: false,
       task: {
-        title: null,
+        name: null,
         description: null,
-        duration: null,
         start_at: null,
         end_at: null,
-        day: null
+        day: today
+      },
+      taskRules: {
+        name: [
+          v => !!v || "Name is required",
+          v => (v && v.length >= 4) || "Title must be more than 3 characters"
+        ],
+        start_at: [v => !!v || "Start at is required"],
+        end_at: [v => !!v || "End at is required"]
       },
       loading: false,
       menu2: false
     };
   },
-  computed: {
-    today() {
-      return new Date().toISOString().substr(0, 10);
-    }
-  },
   methods: {
     resetForm() {
-      for (let prop in this.task) {
-        this.task[prop] = null;
-      }
+      this.$refs.form.reset();
+      this.task.day = today;
     },
     addTask() {
       if (this.$refs.form.validate()) {
-        console.log(this.task);
+        this.loading = true;
+        this.$store
+          .dispatch("addTaskAction", this.task)
+          .then(() => {})
+          .catch(err => console.log(err))
+          .finally(() => {
+            this.loading = false;
+            this.resetForm();
+          });
       }
-      this.resetForm();
     }
   }
 };
