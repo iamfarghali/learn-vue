@@ -31,7 +31,7 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-text-field
-                  v-model="task.day"
+                  v-model="task.task_day"
                   label="Task Day"
                   readonly
                   v-bind="attrs"
@@ -39,9 +39,9 @@
                 ></v-text-field>
               </template>
               <v-date-picker
-                v-model="task.day"
+                v-model="task.task_day"
                 @input="menu2 = false"
-                :min="task.day"
+                :min="todayDate"
                 no-title
               ></v-date-picker>
             </v-menu>
@@ -65,18 +65,39 @@
     </v-card-text>
     <v-card-actions>
       <v-btn
+        class="text-capitalize"
         color="purple darken-3"
         text
         small
         :loading="loading"
         @click="addTask()"
+        v-if="!taskToUpdate"
       >
         <v-icon small class="mr-1">mdi-plus-circle</v-icon>
-        Add Task
+        Add New Task
+      </v-btn>
+
+      <v-btn
+        class="text-capitalize"
+        color="blue darken-3"
+        text
+        small
+        :loading="loading"
+        @click="updateTask()"
+        v-else
+      >
+        <v-icon small class="mr-1">mdi-update</v-icon>
+        Update Task
       </v-btn>
 
       <v-spacer></v-spacer>
-      <v-btn color="red darken-3" text small @click="resetForm()">
+      <v-btn
+        class="text-capitalize"
+        color="red darken-3"
+        text
+        small
+        @click="resetForm()"
+      >
         <v-icon small class="mr-1">mdi-trash-can-outline</v-icon>
         Clear
       </v-btn>
@@ -85,19 +106,11 @@
 </template>
 
 <script>
-const today = new Date().toISOString().substr(0, 10);
 export default {
   name: "AddTask",
   data() {
     return {
       valid: false,
-      task: {
-        name: null,
-        description: null,
-        start_at: null,
-        end_at: null,
-        day: today
-      },
       taskRules: {
         name: [
           v => !!v || "Name is required",
@@ -110,16 +123,53 @@ export default {
       menu2: false
     };
   },
+  computed: {
+    task() {
+      return !this.taskToUpdate ? this.$store.state.task : this.taskToUpdate;
+    },
+    taskToUpdate() {
+      return this.$store.state.taskToUpdate;
+    },
+    todayDate() {
+      return this.$store.state.todayDate;
+    }
+  },
   methods: {
     resetForm() {
-      this.$refs.form.reset();
-      this.task.day = today;
+      if (!this.taskToUpdate) {
+        this.$store.state.task = {
+          id: null,
+          name: null,
+          description: null,
+          start_at: null,
+          end_at: null,
+          task_day: this.todayDate,
+          user_id: null
+        };
+        this.$refs.form.resetValidation();
+      } else {
+        this.$store.state.taskToUpdate = null;
+        this.$refs.form.resetValidation();
+      }
     },
     addTask() {
       if (this.$refs.form.validate()) {
         this.loading = true;
         this.$store
           .dispatch("addTaskAction", this.task)
+          .then(() => {})
+          .catch(err => console.log(err))
+          .finally(() => {
+            this.loading = false;
+            this.resetForm();
+          });
+      }
+    },
+    updateTask() {
+      if (this.$refs.form.validate()) {
+        this.loading = true;
+        this.$store
+          .dispatch("updateTaskAction", this.task)
           .then(() => {})
           .catch(err => console.log(err))
           .finally(() => {

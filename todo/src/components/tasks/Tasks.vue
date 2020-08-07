@@ -6,11 +6,11 @@
         color="purple darken-2"
       ></v-progress-circular>
     </div>
-    <div v-else>
+    <div v-show="!loading && tasks.length > 0">
       <v-list dense>
         <task v-for="task in tasks" :task="task" :key="task.id"></task>
       </v-list>
-      <div class="text-center my-4">
+      <div class="text-center my-4" v-show="pagination.total_pages > 1">
         <v-pagination
           v-model="pagination.current"
           :length="pagination.total_pages"
@@ -62,4 +62,5 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+</style>
