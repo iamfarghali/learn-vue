@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div v-if="loading" class="text-center my-12">
+    <div v-show="isLoading" class="text-center my-16">
       <v-progress-circular
         indeterminate
         color="purple darken-2"
       ></v-progress-circular>
     </div>
-    <div v-show="!loading && tasks.length > 0">
+    <div v-show="isShowTasks">
       <v-list dense>
         <task v-for="task in tasks" :task="task" :key="task.id"></task>
       </v-list>
@@ -31,7 +31,7 @@ export default {
       loading: false
     };
   },
-  mounted() {
+  created() {
     this.getTasks();
   },
   computed: {
@@ -40,6 +40,15 @@ export default {
     },
     pagination() {
       return this.$store.state.pagination;
+    },
+    isUpdateLoading() {
+      return this.$store.state.isUpdateLoading;
+    },
+    isShowTasks() {
+      return !this.loading && !this.isUpdateLoading && this.tasks.length > 0;
+    },
+    isLoading() {
+      return this.loading || this.isUpdateLoading;
     }
   },
   components: {
@@ -61,6 +70,3 @@ export default {
   }
 };
 </script>
-
-<style>
-</style>

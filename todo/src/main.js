@@ -10,5 +10,8 @@ new Vue({
   router,
   store,
   vuetify,
+  beforeCreate() {
+    this.$store.commit("PERSIST_JWT_IN_STORE");
+  },
   render: h => h(App)
 }).$mount("#app");

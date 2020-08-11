@@ -1,6 +1,6 @@
 import axios from "axios";
 export default axios.create({
-  baseURL: "http://todo.test/api/tasks/",
+  baseURL: "http://todo.test/api/auth/login",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
